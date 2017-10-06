@@ -2,6 +2,16 @@
 
 require 'csv'
 
+class Field
+  attr_reader :name, :label, :validation
+
+  def initialize(params)
+    @name       = params.fetch(:name)
+    @label      = params.fetch(:label)
+    @validation = params.fetch(:validation)
+  end
+end
+
 @service = ARGV.shift
 
 def main
@@ -10,7 +20,12 @@ end
 
 def add_hof_app(service)
   svc = service.downcase
-  fields = %w(name colour age)
+
+  fields = [
+    Field.new(name: 'name', label: 'Name', validation: 'required'),
+    Field.new(name: 'colour', label: 'Colour', validation: 'required'),
+    Field.new(name: 'age', label: 'Age', validation: 'required')
+  ]
 
   system "hof app #{svc}"
   set_title(svc, "#{service} Service")
@@ -29,15 +44,16 @@ def set_title(service, title)
   )
 end
 
-def write_fields_index_js(service, arr)
+def write_fields_index_js(service, fields)
   file = "apps/#{service}/fields/index.js"
-  fields = arr.map {|f| "  #{f}: { validate: 'required' }"}.join(",\n")
+
+  js_fields = fields.map {|f| "  #{f.name}: { validate: '#{f.validation}' }"}.join(",\n")
 
   File.write(file, <<~EOF
       'use strict';
 
       module.exports = {
-      #{fields}
+      #{js_fields}
       };
     EOF
   )
@@ -62,8 +78,10 @@ def write_index_js(service, fields)
 end
 
 def steps(fields)
+  field_names = fields.map(&:name)
+
   [
-    step(name: 'name', fields: fields, next_step: 'confirm')
+    step(name: 'name', fields: field_names, next_step: 'confirm')
   ]
 end
 
