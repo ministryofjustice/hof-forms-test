@@ -17,7 +17,7 @@ end
 
 def set_title(service, title)
   file = "apps/#{service}/translations/src/en/journey.json"
-  File.write(file, <<-EOF
+  File.write(file, <<~EOF
     {
       "header": "#{title}",
       "phase": ""
