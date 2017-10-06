@@ -1,0 +1,8 @@
+{
+  "theme": "govuk",
+  "routes": [
+  ],
+  "session": {
+    "name": "foo.hof.sid"
+  }
+}
