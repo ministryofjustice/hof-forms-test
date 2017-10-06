@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+require 'erb'
+
 @service = ARGV.shift
 
 def main
@@ -7,8 +9,10 @@ def main
 end
 
 def add_hof_app(service)
-  system "hof app #{service.downcase}"
-  set_title(service.downcase, "#{service} Service")
+  svc = service.downcase
+  system "hof app #{svc}"
+  set_title(svc, "#{service} Service")
+  write_index_js(svc)
 end
 
 def set_title(service, title)
@@ -21,6 +25,35 @@ def set_title(service, title)
     EOF
   )
 end
+
+def write_index_js(service)
+  template = <<EOF
+'use strict';
+
+module.exports = {
+  name: '<%= service %>',
+  baseUrl: '/<%= service %>',
+  steps: {
+    '/name': {
+      fields: ['name'],
+      next: '/confirm'
+    },
+    '/confirm': {
+      behaviours: ['complete', require('hof-behaviour-summary-page')],
+      next: '/complete'
+    },
+    '/complete': {
+      template: 'confirmation'
+    }
+  }
+};
+EOF
+
+  renderer = ERB.new(template)
+
+  File.write("apps/#{service}/index.js", renderer.result(binding))
+end
+
 
 main
 
