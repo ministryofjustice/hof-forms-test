@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'erb'
+require 'csv'
 
 @service = ARGV.shift
 
@@ -54,6 +55,11 @@ EOF
   File.write("apps/#{service}/index.js", renderer.result(binding))
 end
 
+
+def js_string_array(arr)
+  csv = arr.to_csv(quote_char: "'", force_quotes: true, row_sep: nil)
+  "[#{csv}]"
+end
 
 main
 
