@@ -29,7 +29,7 @@ def add_hof_app(service)
 
   system "hof app #{svc}"
   set_title(svc, "#{service} Service")
-  write_fields_index_js(svc, fields)
+  write_fields(svc, fields)
   write_index_js(svc, fields)
 end
 
@@ -39,6 +39,24 @@ def set_title(service, title)
     {
       "header": "#{title}",
       "phase": ""
+    }
+    EOF
+  )
+end
+
+def write_fields(service ,fields)
+  write_field_translations(service, fields)
+  write_fields_index_js(service, fields)
+end
+
+def write_field_translations(service, fields)
+  file = "apps/#{service}/translations/src/en/fields.json"
+
+  js_fields = fields.map {|f| %[  "#{f.name}": { "label": "#{f.label}" }]}.join(",\n")
+
+  File.write(file, <<~EOF
+    {
+    #{js_fields}
     }
     EOF
   )
@@ -124,5 +142,7 @@ __END__
 
 * Write translations
 * Handle pages
+* Service should be a class, with a title and a name
+* Step/Page should be a class, with a header and a name
 * In add_hof_app, use service.snake_case, in case it has spaces
 
