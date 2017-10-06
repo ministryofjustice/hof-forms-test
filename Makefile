@@ -7,4 +7,4 @@ build:
 
 rebuild:
 	make reset
-	make build
+	make build && npm run start:dev
