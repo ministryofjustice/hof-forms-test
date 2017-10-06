@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 
-require 'erb'
 require 'csv'
 
 @service = ARGV.shift
@@ -45,23 +44,21 @@ def write_fields_index_js(service, arr)
 end
 
 def write_index_js(service, fields)
-  template = <<EOF
-'use strict';
-
-module.exports = {
-  name: '<%= service %>',
-  baseUrl: '/<%= service %>',
-  steps: {
-    #{steps(fields).join(',')},
-    <%= service_end %>
-  }
-};
-EOF
-
   service_end = confirm_and_complete()
 
-  renderer = ERB.new(template)
-  File.write("apps/#{service}/index.js", renderer.result(binding))
+  File.write("apps/#{service}/index.js", <<~EOF
+    'use strict';
+
+    module.exports = {
+      name: '#{service}',
+      baseUrl: '/#{service}',
+      steps: {
+        #{steps(fields).join(',')},
+        #{service_end}
+      }
+    };
+  EOF
+  )
 end
 
 def steps(fields)
